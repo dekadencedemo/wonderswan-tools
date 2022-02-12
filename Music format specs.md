@@ -1,0 +1,28 @@
+# Wonderswan music format
+
+- 32 byte header
+    - Song info (TBD)
+- 31 x 32 byte instruments
+    - 16 bytes info (TBD)
+    - 16 byte waveform (unsigned 4bit packed nybble)
+- 256 byte order list
+    - Pattern number 1 byte
+    - `0xFF` = end of list
+- ?? x 1024 byte patterns
+    - 64 rows per pattern
+    - 16 bytes per row
+    - `XX YY ZZ WW XX YY ZZ WW XX YY ZZ WW XX YY ZZ WW`
+        - `XX` = pitch
+            - `0x00` = no note
+            - `0x01` - `0x0c` = Octave 0 (Protracker)
+            - `0x0d` - `0x18` = Octave 1 (Protracker)
+            - `0x19` - `0x24` = Octave 2 (Protracker)
+            - `0x25` - `0x30` = Octave 3 (Extended)
+        - `YY` = instrument number
+        - `ZZ WW` = Effect + parameters (Protracker)
+            - `0x00` - Arpeggio (Protracker compatible)
+            - `0x0a` - Volume slide (Protracker compatible)
+            - `0x0b` - Jump to position (Protracker compatible)
+            - `0x0c` - Set Volume (Protracker compatible)
+            - `0x0d` - Pattern break (Protracker row jump not implemented)
+            - `0x0f` - Set Speed (Protracker speed only, no tempo)

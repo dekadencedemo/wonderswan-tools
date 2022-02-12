@@ -95,7 +95,16 @@ def convert(input_mod, output_file, debug):
     mod = parse_mod(input_mod)
 
     if debug:
-        print('{}'.format(mod))
+        print()
+
+        for pattern_index, pattern in enumerate(mod.patterns):
+            print('pattern {}:'.format(pattern_index))
+
+            for row_index, row in enumerate(pattern.rows):
+                print('row {}:'.format(row_index))
+
+                for channel_index, channel in enumerate(row.channel_rows):
+                    print('channel {}: {}'.format(channel_index, channel))
 
 
 if __name__ == "__main__":

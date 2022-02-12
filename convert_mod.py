@@ -12,6 +12,7 @@ ModChannelRow = namedtuple('ModChannelRow', ['period', 'sample', 'effect', 'effe
 ModPatternRow = namedtuple('ModPatternRow', ['channel_rows'])
 ModPattern = namedtuple('ModPattern', ['rows'])
 ModSong = namedtuple('ModSong', ['patterns'])
+Mod = namedtuple('Mod', ['song', 'positions'])
 
 
 def parse_mod_channel_rows(mod_bytes, pattern_index, row_index):
@@ -84,7 +85,9 @@ def parse_mod(input_mod):
     print('positions: {}'.format(positions))
     print('max pattern: {}'.format(max_pattern))
 
-    return parse_patterns(mod_bytes, max_pattern)
+    song = parse_patterns(mod_bytes, max_pattern)
+
+    return Mod(song, positions)
 
 
 @click.command()

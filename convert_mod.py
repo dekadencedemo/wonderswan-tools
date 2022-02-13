@@ -8,7 +8,7 @@ import sys
 from collections import namedtuple
 
 
-ModSample = namedtuple('ModSample', ['name', 'length', 'finetune', 'volume', 'repeat_start', 'repeat_length']) # TODO: bytes
+ModSample = namedtuple('ModSample', ['name', 'length', 'finetune', 'volume', 'repeat_start', 'repeat_length', 'data'])
 ModChannelRow = namedtuple('ModChannelRow', ['period', 'sample', 'effect', 'effect_value'])
 ModPatternRow = namedtuple('ModPatternRow', ['channel_rows'])
 ModPattern = namedtuple('ModPattern', ['rows'])
@@ -26,13 +26,13 @@ period_map = {
     214: 0x19, 202: 0x1a, 190: 0x1b, 180: 0x1c, 170: 0x1d, 160: 0x1e, 151: 0x1f, 143: 0x20, 135: 0x21, 127: 0x22, 120: 0x23, 113: 0x24
 }
 repeat_lengths = [128, 64, 32, 16]
+patterns_start = 1084
+pattern_length = 1024
 
 
 def parse_mod_channel_rows(mod_bytes, pattern_index, row_index):
     channel_rows = []
     channel_count = 4
-    patterns_start = 1084
-    pattern_length = 1024
     row_length = 16
     channel_length = 4
 
@@ -69,7 +69,7 @@ def parse_patterns(mod_bytes, max_pattern):
     return ModSong(patterns)
 
 
-def parse_samples(mod_bytes):
+def parse_samples(mod_bytes, max_pattern):
     sample_header_start = 20
     sample_header_offset = 30
     position = sample_header_start
@@ -85,6 +85,7 @@ def parse_samples(mod_bytes):
     repeat_length_offset = repeat_start_offset + repeat_start_length
     repeat_length_length = 2
     samples = []
+    sample_data_position = patterns_start + ((max_pattern + 1) * pattern_length)
 
     for _ in range(0, 31):
         name_start = position
@@ -111,7 +112,13 @@ def parse_samples(mod_bytes):
         repeat_length_end = repeat_length_start + repeat_length_length
         repeat_length = struct.unpack('>H', mod_bytes[repeat_length_start:repeat_length_end])[0] * 2
 
-        sample = ModSample(name, length, finetune, volume, repeat_start, repeat_length)
+        if length > 0:
+            sample_data = struct.unpack('{}B'.format(length), mod_bytes[sample_data_position:sample_data_position + length])
+            sample_data_position += length
+        else:
+            sample_data = bytes(0)
+
+        sample = ModSample(name, length, finetune, volume, repeat_start, repeat_length, sample_data)
 
         samples.append(sample)
 
@@ -150,7 +157,7 @@ def parse_mod(input_mod):
     print('max pattern: {}'.format(max_pattern))
 
     song = parse_patterns(mod_bytes, max_pattern)
-    samples = parse_samples(mod_bytes)
+    samples = parse_samples(mod_bytes, max_pattern)
 
     return Mod(song, positions, samples)
 

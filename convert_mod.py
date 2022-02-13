@@ -61,7 +61,7 @@ def parse_pattern_rows(mod_bytes, pattern_index):
 def parse_patterns(mod_bytes, max_pattern):
     patterns = []
 
-    for pattern_index in range(0, max_pattern):
+    for pattern_index in range(0, max_pattern + 1):
         patterns.append(parse_pattern_rows(mod_bytes, pattern_index))
 
     return ModSong(patterns)

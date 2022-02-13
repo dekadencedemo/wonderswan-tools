@@ -29,7 +29,36 @@ def convert_tiles(filename):
 
     tiles = generate_tiles(rows)
 
-    
+    write_tiles(tiles, colors, '{}.tiles'.format(filename))
+
+
+def write_tiles(tiles, colors, out_filename):
+    print(out_filename)
+
+    ws_bytes = bytearray()
+
+    for row in tiles:
+        for column in row:
+            for tile_row in column:
+                byte1 = 0
+                byte2 = 0
+
+                for index, color in enumerate(tile_row):
+                    color_index = colors.index(color)
+
+                    if color_index % 2 == 1:
+                        byte1 = byte1 | (1 << (7 - index))
+                    
+                    if color_index > 1:
+                        byte2 = byte2 | (1 << (7 - index))
+                    
+                ws_bytes.append(byte1)
+                ws_bytes.append(byte2)
+
+    with open(out_filename, mode='wb') as file:
+        file.write(ws_bytes)
+
+
 def generate_tiles(rows):
     tile_length = 8
     stride = 3

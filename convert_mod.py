@@ -8,11 +8,12 @@ import sys
 from collections import namedtuple
 
 
+ModSample = namedtuple('ModSample', ['name', 'length', 'finetune', 'volume', 'repeat_start', 'repeat_length']) # TODO: bytes
 ModChannelRow = namedtuple('ModChannelRow', ['period', 'sample', 'effect', 'effect_value'])
 ModPatternRow = namedtuple('ModPatternRow', ['channel_rows'])
 ModPattern = namedtuple('ModPattern', ['rows'])
 ModSong = namedtuple('ModSong', ['patterns'])
-Mod = namedtuple('Mod', ['song', 'positions'])
+Mod = namedtuple('Mod', ['song', 'positions', 'samples'])
 
 period_map = {
     # no note
@@ -67,6 +68,57 @@ def parse_patterns(mod_bytes, max_pattern):
     return ModSong(patterns)
 
 
+def parse_samples(mod_bytes):
+    sample_header_start = 20
+    sample_header_offset = 30
+    position = sample_header_start
+    name_length = 22
+    sample_length_offset = name_length
+    sample_length_length = 2
+    finetune_offset = sample_length_offset + sample_length_length
+    finetune_length = 1
+    volume_offset = finetune_offset + finetune_length
+    volume_length = 1
+    repeat_start_offset = volume_offset + volume_length
+    repeat_start_length = 2
+    repeat_length_offset = repeat_start_offset + repeat_start_length
+    repeat_length_length = 2
+    samples = []
+
+    for sample_index in range(0, 31):
+        name_start = position
+        name_end = name_start + name_length
+        name = struct.unpack('22s', mod_bytes[name_start:name_end])[0].decode('ascii').rstrip('\x00')
+
+        length_start = position + sample_length_offset
+        length_end = length_start + sample_length_length
+        length = struct.unpack('>H', mod_bytes[length_start:length_end])[0] * 2
+
+        finetune_start = position + finetune_offset
+        finetune_end = finetune_start + finetune_length
+        finetune = struct.unpack('B', mod_bytes[finetune_start:finetune_end])[0] & 0b1111
+
+        volume_start = position + volume_offset
+        volume_end = volume_start + volume_length
+        volume = struct.unpack('B', mod_bytes[volume_start:volume_end])[0]
+
+        repeat_start_start = position + repeat_start_offset
+        repeat_start_end = repeat_start_start + repeat_start_length
+        repeat_start = struct.unpack('>H', mod_bytes[repeat_start_start:repeat_start_end])[0] * 2
+
+        repeat_length_start = position + repeat_length_offset
+        repeat_length_end = repeat_length_start + repeat_length_length
+        repeat_length = struct.unpack('>H', mod_bytes[repeat_length_start:repeat_length_end])[0] * 2
+
+        sample = ModSample(name, length, finetune, volume, repeat_start, repeat_length)
+
+        samples.append(sample)
+
+        position += sample_header_offset
+
+    return samples
+
+
 def parse_mod(input_mod):
     with open(input_mod, mode='rb') as file:
         mod_bytes = file.read()
@@ -97,8 +149,9 @@ def parse_mod(input_mod):
     print('max pattern: {}'.format(max_pattern))
 
     song = parse_patterns(mod_bytes, max_pattern)
+    samples = parse_samples(mod_bytes)
 
-    return Mod(song, positions)
+    return Mod(song, positions, samples)
 
 
 def write_ws_file(mod, output_file):
@@ -109,7 +162,12 @@ def write_ws_file(mod, output_file):
         ws_bytes.append(0)
 
     # 31 x 32 byte instruments, actual content TBD
-    for _ in range(0, 31):
+    for sample_index in range(0, 31):
+        sample = mod.samples[sample_index]
+
+        if sample.length > 0 and sample.repeat_length != 32 and sample.repeat_length != 64:
+            print('error in sample {}: repeat length should be either 32 or 64'.format(sample_index))
+
         for _ in range(0, 32):
             ws_bytes.append(0)
 
@@ -127,11 +185,19 @@ def write_ws_file(mod, output_file):
         for row_index, row in enumerate(pattern.rows):
             for channel_index, channel_row in enumerate(row.channel_rows):
                 if channel_row.period in period_map:
-                    ws_bytes.append(period_map[channel_row.period])
+                    note = period_map[channel_row.period]
                 else:
                     print('error on pattern {}, row {}, channel {}: unknown period {}'.format(pattern_index, row_index, channel_index, channel_row.period))
-                    ws_bytes.append(0)
+                    note = 0
 
+                sample_number = channel_row.sample - 1
+                sample = mod.samples[sample_number]
+
+                # the repeat_length is either 32 or 64 bytes. if it's 32 bytes, bump the note up by one octave
+                if note > 0 and sample.repeat_length == 32:
+                    note += 0xc
+
+                ws_bytes.append(note)
                 ws_bytes.append(channel_row.sample)
                 ws_bytes.append(channel_row.effect)
                 ws_bytes.append(channel_row.effect_value)
@@ -158,7 +224,12 @@ def convert(input_mod, output_file, debug):
 
                 for channel_index, channel in enumerate(row.channel_rows):
                     print('channel {}: {}'.format(channel_index, channel))
-    
+        
+        print('\nsamples:')
+
+        for sample_index, sample in enumerate(mod.samples):
+            print('sample {}: {}'.format(sample_index, sample))
+
     write_ws_file(mod, output_file)
 
 

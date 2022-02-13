@@ -165,8 +165,8 @@ def write_ws_file(mod, output_file):
     for sample_index in range(0, 31):
         sample = mod.samples[sample_index]
 
-        if sample.length > 0 and sample.repeat_length != 32 and sample.repeat_length != 64:
-            print('error in sample {}: repeat length should be either 32 or 64'.format(sample_index))
+        if sample.length > 0 and sample.repeat_length != 16 and sample.repeat_length != 32 and sample.repeat_length != 64 and sample.repeat_length != 128:
+            print('error in sample {}: repeat length should be either 16, 32, 64 or 128'.format(sample_index))
 
         for _ in range(0, 32):
             ws_bytes.append(0)
@@ -180,6 +180,8 @@ def write_ws_file(mod, output_file):
         else:
             ws_bytes.append(0xff)
 
+    sample_buffer = [0, 0, 0, 0]
+
     # ?? x 1024 byte patterns, 64 rows per pattern, 16 bytes per row
     for pattern_index, pattern in enumerate(mod.song.patterns):
         for row_index, row in enumerate(pattern.rows):
@@ -190,12 +192,20 @@ def write_ws_file(mod, output_file):
                     print('error on pattern {}, row {}, channel {}: unknown period {}'.format(pattern_index, row_index, channel_index, channel_row.period))
                     note = 0
 
-                sample_number = channel_row.sample - 1
-                sample = mod.samples[sample_number]
-
-                # the repeat_length is either 32 or 64 bytes. if it's 32 bytes, bump the note up by one octave
+                if channel_row.sample > 0:
+                    sample_number = channel_row.sample - 1
+                    sample = mod.samples[sample_number]
+                    sample_buffer[channel_index] = sample
+                else:
+                    sample = sample_buffer[channel_index]
+                
+                # the repeat_length is either 16, 32, 64 or 128 bytes. if it's 32 bytes, bump the note up by one octave
+                if note > 0 and sample.repeat_length == 64:
+                	note += 0xc
                 if note > 0 and sample.repeat_length == 32:
-                    note += 0xc
+                    note += 0x18
+                if note > 0 and sample.repeat_length == 16:
+                	note += 0x24
 
                 ws_bytes.append(note)
                 ws_bytes.append(channel_row.sample)

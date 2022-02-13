@@ -162,7 +162,12 @@ def write_ws_file(mod, output_file):
         ws_bytes.append(0)
 
     # 31 x 32 byte instruments, actual content TBD
-    for _ in range(0, 31):
+    for sample_index in range(0, 31):
+        sample = mod.samples[sample_index]
+
+        if sample.length > 0 and sample.repeat_length != 32 and sample.repeat_length != 64:
+            print('error in sample {}: repeat length should be either 32 or 64'.format(sample_index))
+
         for _ in range(0, 32):
             ws_bytes.append(0)
 

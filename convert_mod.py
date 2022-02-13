@@ -25,6 +25,7 @@ period_map = {
     # c-3 to b-3
     214: 0x19, 202: 0x1a, 190: 0x1b, 180: 0x1c, 170: 0x1d, 160: 0x1e, 151: 0x1f, 143: 0x20, 135: 0x21, 127: 0x22, 120: 0x23, 113: 0x24
 }
+repeat_lengths = [128, 64, 32, 16]
 
 
 def parse_mod_channel_rows(mod_bytes, pattern_index, row_index):
@@ -165,8 +166,8 @@ def write_ws_file(mod, output_file):
     for sample_index in range(0, 31):
         sample = mod.samples[sample_index]
 
-        if sample.length > 0 and sample.repeat_length != 16 and sample.repeat_length != 32 and sample.repeat_length != 64 and sample.repeat_length != 128:
-            print('error in sample {}: repeat length should be either 16, 32, 64 or 128'.format(sample_index))
+        if sample.length > 0 and sample.repeat_length not in repeat_lengths:
+            print('error in sample {}: repeat length should be one of the following: {}'.format(sample_index, repeat_lengths))
 
         for _ in range(0, 32):
             ws_bytes.append(0)
@@ -199,13 +200,11 @@ def write_ws_file(mod, output_file):
                 else:
                     sample = sample_buffer[channel_index]
                 
-                # the repeat_length is either 16, 32, 64 or 128 bytes. if it's 32 bytes, bump the note up by one octave
-                if note > 0 and sample.repeat_length == 64:
-                	note += 0xc
-                if note > 0 and sample.repeat_length == 32:
-                    note += 0x18
-                if note > 0 and sample.repeat_length == 16:
-                	note += 0x24
+                # the repeat_length is either 16, 32, 64 or 128 bytes. bump octaves according to the length
+                if note > 0:
+                    multiplier = repeat_lengths.index(sample.repeat_length)
+                    note_offset = 0xc * multiplier
+                    note += note_offset
 
                 ws_bytes.append(note)
                 ws_bytes.append(channel_row.sample)

@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 click = "==6.6"
+pypng = "==0.0.21"
 
 [dev-packages]
 

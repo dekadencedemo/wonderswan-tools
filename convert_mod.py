@@ -170,6 +170,8 @@ def write_ws_file(mod, output_file):
             print('error in sample {}: repeat length should be one of the following: {}'.format(sample_index, repeat_lengths))
 
         ws_bytes.append(sample.volume)
+
+        # insert blank data for now
         for _ in range(0, 31):
             ws_bytes.append(0)
 

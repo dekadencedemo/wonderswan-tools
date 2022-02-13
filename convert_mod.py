@@ -85,7 +85,7 @@ def parse_samples(mod_bytes):
     repeat_length_length = 2
     samples = []
 
-    for sample_index in range(0, 31):
+    for _ in range(0, 31):
         name_start = position
         name_end = name_start + name_length
         name = struct.unpack('22s', mod_bytes[name_start:name_end])[0].decode('ascii').rstrip('\x00')

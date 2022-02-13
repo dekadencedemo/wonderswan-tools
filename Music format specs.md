@@ -28,6 +28,8 @@
         - `YY` = instrument number
         - `ZZ WW` = Effect + parameters (Protracker)
             - `0x00` - Arpeggio (Protracker compatible)
+            - `0x01` - Porta up (NOT Protracker compatible)
+            - `0x02` - Porta down (NOT Protracker compatible)
             - `0x05` - Porta to note + Volume slide (Protracker compatible, only volume slide implemented)
             - `0x06` - Vibrato + Volume slide (Protracker compatible, only volume slide implemented)
             - `0x0a` - Volume slide (Protracker compatible)

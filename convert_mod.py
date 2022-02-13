@@ -185,12 +185,20 @@ def write_ws_file(mod, output_file):
         for row_index, row in enumerate(pattern.rows):
             for channel_index, channel_row in enumerate(row.channel_rows):
                 if channel_row.period in period_map:
-                    ws_bytes.append(period_map[channel_row.period])
+                    note = period_map[channel_row.period]
                 else:
                     print('error on pattern {}, row {}, channel {}: unknown period {}'.format(pattern_index, row_index, channel_index, channel_row.period))
-                    ws_bytes.append(0)
+                    note = 0
 
-                ws_bytes.append(channel_row.sample)
+                sample_number = channel_row.sample
+                sample = mod.samples[sample_number]
+
+                # the repeat_length is either 32 or 64 bytes. if it's 32 bytes, bump the note up by one octave
+                if note > 0 and sample.repeat_length == 32:
+                    note += 0xc
+
+                ws_bytes.append(note)
+                ws_bytes.append(sample_number)
                 ws_bytes.append(channel_row.effect)
                 ws_bytes.append(channel_row.effect_value)
 

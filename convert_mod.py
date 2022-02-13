@@ -169,7 +169,8 @@ def write_ws_file(mod, output_file):
         if sample.length > 0 and sample.repeat_length not in repeat_lengths:
             print('error in sample {}: repeat length should be one of the following: {}'.format(sample_index, repeat_lengths))
 
-        for _ in range(0, 32):
+        ws_bytes.append(sample.volume)
+        for _ in range(0, 31):
             ws_bytes.append(0)
 
     # 256 byte order list, 0xff = end of list

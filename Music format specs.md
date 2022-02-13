@@ -8,7 +8,8 @@
         - Default value 240 (125bpm)
         - Calculated with `12000*60 / bpm*24`
 - 31 x 32 byte instruments
-    - 16 bytes info (TBD)
+    - 16 bytes info
+        - `0x00` Default volume
     - 16 byte waveform (unsigned 4bit packed nybble)
 - 256 byte order list
     - Pattern number 1 byte

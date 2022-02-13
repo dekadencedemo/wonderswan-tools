@@ -1,7 +1,12 @@
 # Wonderswan music format
 
 - 32 byte header
-    - Song info (TBD)
+    - 0x00-0x01 Identifier (TBD)
+    - 0x02 Default speed
+    - 0x03 Pattern count
+    - 0x04-0x05 Tempo
+        - Default value 240 (125bpm)
+        - Calculated with 12000*60 / bpm*24
 - 31 x 32 byte instruments
     - 16 bytes info (TBD)
     - 16 byte waveform (unsigned 4bit packed nybble)

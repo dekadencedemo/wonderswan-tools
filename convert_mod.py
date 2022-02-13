@@ -190,7 +190,7 @@ def write_ws_file(mod, output_file):
                     print('error on pattern {}, row {}, channel {}: unknown period {}'.format(pattern_index, row_index, channel_index, channel_row.period))
                     note = 0
 
-                sample_number = channel_row.sample
+                sample_number = channel_row.sample - 1
                 sample = mod.samples[sample_number]
 
                 # the repeat_length is either 32 or 64 bytes. if it's 32 bytes, bump the note up by one octave
@@ -198,7 +198,7 @@ def write_ws_file(mod, output_file):
                     note += 0xc
 
                 ws_bytes.append(note)
-                ws_bytes.append(sample_number)
+                ws_bytes.append(channel_row.sample)
                 ws_bytes.append(channel_row.effect)
                 ws_bytes.append(channel_row.effect_value)
 

@@ -179,8 +179,39 @@ def write_ws_file(mod, output_file):
         ws_bytes.append(sample.volume)
 
         # insert blank data for now
-        for _ in range(0, 31):
+        for _ in range(0, 15):
             ws_bytes.append(0)
+        
+        smp = sample.data
+        rep_start = sample.repeat_start
+        # convert samples to signed and store highest 4 bits
+        # TODO: implement optional interpolation
+        if sample.repeat_length == 16:
+            for byte_index in range(0, 16):
+                lo_sample = smp[rep_start + byte_index] + 0x80
+                hi_sample = lo_sample
+                ws_bytes.append((hi_sample & 0xf0) | ((lo_sample >> 4) & 0x0f))
+        elif sample.repeat_length == 32:
+            for byte_index in range(0, 16):
+                # convert to signed and store highest 4 bits
+                hi_sample = smp[rep_start + byte_index * 2 + 1] + 0x80
+                lo_sample = smp[rep_start + byte_index * 2] + 0x80
+                ws_bytes.append((hi_sample & 0xf0) | ((lo_sample >> 4) & 0x0f))
+        elif sample.repeat_length == 64:
+            for byte_index in range(0, 16):
+                # convert to signed and store highest 4 bits
+                hi_sample = smp[rep_start + byte_index * 4 + 2] + 0x80
+                lo_sample = smp[rep_start + byte_index * 4] + 0x80
+                ws_bytes.append((hi_sample & 0xf0) | ((lo_sample >> 4) & 0x0f))
+        elif sample.repeat_length == 128:
+            for byte_index in range(0, 16):
+                # convert to signed and store highest 4 bits
+                hi_sample = smp[rep_start + byte_index * 8 + 4] + 0x80
+                lo_sample = smp[rep_start + byte_index * 8] + 0x80
+                ws_bytes.append((hi_sample & 0xf0) | ((lo_sample >> 4) & 0x0f))
+        else:
+            for _ in range(0, 16):
+                ws_bytes.append(0)
 
     # 256 byte order list, 0xff = end of list
     for position_index in range(0, 256):

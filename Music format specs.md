@@ -20,13 +20,16 @@
     - `XX YY ZZ WW XX YY ZZ WW XX YY ZZ WW XX YY ZZ WW`
         - `XX` = pitch
             - `0x00` = no note
-            - `0x01` - `0x0c` = Octave 0 (Protracker)
-            - `0x0d` - `0x18` = Octave 1 (Protracker)
-            - `0x19` - `0x24` = Octave 2 (Protracker)
-            - `0x25` - `0x30` = Octave 3 (Extended)
+            - `0x01` - `0x0c` = Octave 0 (Only G-0 to B-0)
+            - `0x0d` - `0x18` = Octave 1
+            - `0x19` - `0x24` = Octave 2
+            - `0x25` - `0x30` = Octave 3
+            - `0x31` - `0x3c` = Octave 4
         - `YY` = instrument number
         - `ZZ WW` = Effect + parameters (Protracker)
             - `0x00` - Arpeggio (Protracker compatible)
+            - `0x05` - Porta to note + Volume slide (Protracker compatible, only volume slide implemented)
+            - `0x06` - Vibrato + Volume slide (Protracker compatible, only volume slide implemented)
             - `0x0a` - Volume slide (Protracker compatible)
             - `0x0b` - Jump to position (Protracker compatible)
             - `0x0c` - Set Volume (Protracker compatible)

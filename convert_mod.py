@@ -150,7 +150,7 @@ def convert(input_mod, output_file, debug):
     if debug:
         print()
 
-        for pattern_index, pattern in enumerate(mod.patterns):
+        for pattern_index, pattern in enumerate(mod.song.patterns):
             print('pattern {}:'.format(pattern_index))
 
             for row_index, row in enumerate(pattern.rows):

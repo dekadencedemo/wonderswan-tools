@@ -6,6 +6,10 @@ import png
 
 
 TILE_LENGTH = 8
+FLIP_NONE = 0
+FLIP_VERTICAL = 1
+FLIP_HORIZONTAL = 2
+FLIP_VERTICAL_AND_HORIZONTAL = 3
 
 
 @click.command()
@@ -37,17 +41,27 @@ def convert_tiles(filename):
     write_tiles(minimized_tiles[1], colors, '{}.tiles'.format(filename))
 
 
+# returns tuple: ([(tile_index, flip)], [tiles])
 def minimize_tiles(tiles):
     map = []
     map_tiles = []
 
     for tile in tiles:
-        # TODO: also compare vertical flip, horizontal flip, and both
+        vertical_flip_tile = flip_vertical(tile)
+        horizontal_flip_tile = flip_horizontal(tile)
+        vertical_horizontal_flip_tile = flip_horizontal(vertical_flip_tile)
 
-        if tile not in map_tiles:
+        if tile in map_tiles:
+            map.append((map_tiles.index(tile), FLIP_NONE))
+        elif vertical_flip_tile in map_tiles:
+            map.append((map_tiles.index(vertical_flip_tile), FLIP_VERTICAL))
+        elif horizontal_flip_tile in map_tiles:
+            map.append((map_tiles.index(horizontal_flip_tile), FLIP_HORIZONTAL))
+        elif vertical_horizontal_flip_tile in map_tiles:
+            map.append((map_tiles.index(vertical_horizontal_flip_tile), FLIP_VERTICAL_AND_HORIZONTAL))
+        else:
             map_tiles.append(tile)
-
-        map.append(map_tiles.index(tile))
+            map.append((map_tiles.index(tile), FLIP_NONE))
 
     print("total tile count: {}".format(len(tiles)))
     print("minimized tile count: {}".format(len(map_tiles)))
@@ -55,12 +69,40 @@ def minimize_tiles(tiles):
     return (map, map_tiles)
 
 
+def flip_vertical(tile):
+    flipped = []
+
+    for i in range(len(tile), 0, -TILE_LENGTH):
+        flipped.extend(tile[i - TILE_LENGTH : i])
+
+    return flipped
+
+
+def flip_horizontal(tile):
+    flipped = []
+
+    for i in range(0, len(tile), TILE_LENGTH):
+        flipped_row = tile[i : i + TILE_LENGTH]
+        flipped_row.reverse()
+
+        flipped.extend(flipped_row)
+
+    return flipped
+
+
 def write_map(map, colors, out_filename):
     ws_bytes = bytearray()
 
-    for map_index in map:
+    for map_position_info in map:
+        map_index = map_position_info[0]
+        flip = map_position_info[1]
+
         byte1 = map_index & 0xff
-        byte2 = (map_index >> 8) & 0x01
+        byte2 = (
+            ((map_index >> 8) & 0x01)
+            | flip << 6
+        )
+
         ws_bytes.append(byte1)
         ws_bytes.append(byte2)
 

@@ -28,13 +28,46 @@ def convert_tiles(filename):
         return
 
     tiles = generate_tiles(rows)
+    minimized_tiles = minimize_tiles(tiles)
 
-    write_tiles(tiles, colors, '{}.tiles'.format(filename))
+    write_map(minimized_tiles[0], colors, "{}.map".format(filename))
+    write_tiles(minimized_tiles[1], colors, '{}.tiles'.format(filename))
+
+
+def minimize_tiles(tiles):
+    map = []
+    map_tiles = []
+
+    for tile in tiles:
+        # TODO: also compare vertical flip, horizontal flip, and both
+
+        if tile not in map_tiles:
+            map_tiles.append(tile)
+
+        map.append(map_tiles.index(tile))
+
+    print("total tile count: {}".format(len(tiles)))
+    print("minimized tile count: {}".format(len(map_tiles)))
+
+    return (map, map_tiles)
+
+
+def write_map(map, colors, out_filename):
+    ws_bytes = bytearray()
+
+    for map_index in map:
+        byte1 = map_index & 0xff
+        byte2 = (map_index >> 8) & 0x01
+        ws_bytes.append(byte1)
+        ws_bytes.append(byte2)
+
+    with open(out_filename, mode='wb') as file:
+        file.write(ws_bytes)
+
+    print("map written to file: {}".format(out_filename))
 
 
 def write_tiles(tiles, colors, out_filename):
-    print(out_filename)
-
     ws_bytes = bytearray()
 
     for tile in tiles:
@@ -59,6 +92,8 @@ def write_tiles(tiles, colors, out_filename):
 
     with open(out_filename, mode='wb') as file:
         file.write(ws_bytes)
+
+    print("tiles written to file: {}".format(out_filename))
 
 
 def generate_tiles(rows):

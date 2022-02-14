@@ -37,23 +37,22 @@ def write_tiles(tiles, colors, out_filename):
 
     ws_bytes = bytearray()
 
-    for row in tiles:
-        for column in row:
-            for tile_row in column:
-                byte1 = 0
-                byte2 = 0
+    for tile in tiles:
+        for tile_row in tile:
+            byte1 = 0
+            byte2 = 0
 
-                for index, color in enumerate(tile_row):
-                    color_index = colors.index(color)
+            for index, color in enumerate(tile_row):
+                color_index = colors.index(color)
 
-                    if color_index % 2 == 1:
-                        byte1 = byte1 | (1 << (7 - index))
-                    
-                    if color_index > 1:
-                        byte2 = byte2 | (1 << (7 - index))
-                    
-                ws_bytes.append(byte1)
-                ws_bytes.append(byte2)
+                if color_index % 2 == 1:
+                    byte1 = byte1 | (1 << (7 - index))
+                
+                if color_index > 1:
+                    byte2 = byte2 | (1 << (7 - index))
+                
+            ws_bytes.append(byte1)
+            ws_bytes.append(byte2)
 
     with open(out_filename, mode='wb') as file:
         file.write(ws_bytes)
@@ -62,11 +61,10 @@ def write_tiles(tiles, colors, out_filename):
 def generate_tiles(rows):
     tile_length = 8
     stride = 3
-    tile_rows = []
+    tiles = []
 
     for row_offset in range(0, len(rows), tile_length):
         rows_for_tile = rows[row_offset:row_offset + tile_length]
-        tile_columns = []
 
         for column_offset in range(0, len(rows[row_offset]), tile_length * stride):
             current_tile_rows = []
@@ -81,11 +79,9 @@ def generate_tiles(rows):
                 
                 current_tile_rows.append(color_row)
 
-            tile_columns.append(current_tile_rows)
-        
-        tile_rows.append(tile_columns)
+            tiles.append(current_tile_rows)
 
-    return tile_rows
+    return tiles
 
 
 def find_colors(rows):

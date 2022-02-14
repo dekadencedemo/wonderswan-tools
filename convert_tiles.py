@@ -38,19 +38,22 @@ def write_tiles(tiles, colors, out_filename):
     ws_bytes = bytearray()
 
     for tile in tiles:
-        for tile_row in tile:
+        for column in range(0, 8):
+            column_start = column * 8
             byte1 = 0
             byte2 = 0
 
-            for index, color in enumerate(tile_row):
+            for pixel_index in range(column_start, column_start + 8):
+                color = tile[pixel_index]
                 color_index = colors.index(color)
+                index = pixel_index % 8
 
                 if color_index % 2 == 1:
                     byte1 = byte1 | (1 << (7 - index))
-                
+
                 if color_index > 1:
                     byte2 = byte2 | (1 << (7 - index))
-                
+
             ws_bytes.append(byte1)
             ws_bytes.append(byte2)
 
@@ -67,19 +70,16 @@ def generate_tiles(rows):
         rows_for_tile = rows[row_offset:row_offset + tile_length]
 
         for column_offset in range(0, len(rows[row_offset]), tile_length * stride):
-            current_tile_rows = []
+            tile = []
 
             for row in rows_for_tile:
                 rgb_row = row[column_offset:column_offset + (tile_length * stride)]
-                color_row = []
 
                 for i in range(0, len(rgb_row), stride):
                     color = (rgb_row[i], rgb_row[i + 1], rgb_row[i + 2])
-                    color_row.append(color)
-                
-                current_tile_rows.append(color_row)
+                    tile.append(color)
 
-            tiles.append(current_tile_rows)
+            tiles.append(tile)
 
     return tiles
 

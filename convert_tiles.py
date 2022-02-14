@@ -5,6 +5,9 @@ import click
 import png
 
 
+TILE_LENGTH = 8
+
+
 @click.command()
 @click.argument('filename')
 def convert_tiles(filename):
@@ -97,18 +100,17 @@ def write_tiles(tiles, colors, out_filename):
 
 
 def generate_tiles(rows):
-    tile_length = 8
     stride = 3
     tiles = []
 
-    for row_offset in range(0, len(rows), tile_length):
-        rows_for_tile = rows[row_offset:row_offset + tile_length]
+    for row_offset in range(0, len(rows), TILE_LENGTH):
+        rows_for_tile = rows[row_offset:row_offset + TILE_LENGTH]
 
-        for column_offset in range(0, len(rows[row_offset]), tile_length * stride):
+        for column_offset in range(0, len(rows[row_offset]), TILE_LENGTH * stride):
             tile = []
 
             for row in rows_for_tile:
-                rgb_row = row[column_offset:column_offset + (tile_length * stride)]
+                rgb_row = row[column_offset:column_offset + (TILE_LENGTH * stride)]
 
                 for i in range(0, len(rgb_row), stride):
                     color = (rgb_row[i], rgb_row[i + 1], rgb_row[i + 2])

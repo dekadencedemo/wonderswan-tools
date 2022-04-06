@@ -243,9 +243,10 @@ def write_ws_file(mod, output_file):
                 
                 # the repeat_length is either 16, 32, 64 or 128 bytes. bump octaves according to the length
                 if note > 0:
-                    multiplier = repeat_lengths.index(sample.repeat_length)
-                    note_offset = 0xc * multiplier
-                    note += note_offset
+                    if channel_row.sample < 24:
+                        multiplier = repeat_lengths.index(sample.repeat_length)
+                        note_offset = 0xc * multiplier
+                        note += note_offset
 
                 ws_bytes.append(note)
                 ws_bytes.append(channel_row.sample)

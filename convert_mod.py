@@ -173,7 +173,7 @@ def write_ws_file(mod, output_file):
     for sample_index in range(0, 31):
         sample = mod.samples[sample_index]
 
-        if sample.length > 0 and sample.repeat_length not in repeat_lengths:
+        if sample.length > 0 and sample.repeat_length not in repeat_lengths and sample_index < 23:
             print('error in sample {}: repeat length should be one of the following: {}'.format(sample_index, repeat_lengths))
 
         ws_bytes.append(sample.volume)

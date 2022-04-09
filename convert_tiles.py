@@ -38,7 +38,9 @@ def convert_tiles(filename, full):
     tiles = generate_tiles(rows)
     minimized_tiles = minimize_tiles(tiles, full)
 
-    write_map(minimized_tiles[0], colors, "{}.map".format(filename))
+    if not full:
+        write_map(minimized_tiles[0], colors, "{}.map".format(filename))
+
     write_tiles(minimized_tiles[1], colors, '{}.tiles'.format(filename))
 
 

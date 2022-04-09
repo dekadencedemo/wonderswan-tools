@@ -14,7 +14,8 @@ FLIP_VERTICAL_AND_HORIZONTAL = 0x03
 
 @click.command()
 @click.argument('filename')
-def convert_tiles(filename):
+@click.option('--full', is_flag=True, help="Skip minimizing image")
+def convert_tiles(filename, full):
     reader = png.Reader(filename)
     image_info = reader.asRGB()
 
@@ -35,36 +36,43 @@ def convert_tiles(filename):
         return
 
     tiles = generate_tiles(rows)
-    minimized_tiles = minimize_tiles(tiles)
+    minimized_tiles = minimize_tiles(tiles, full)
 
     write_map(minimized_tiles[0], colors, "{}.map".format(filename))
     write_tiles(minimized_tiles[1], colors, '{}.tiles'.format(filename))
 
 
 # returns tuple: ([(tile_index, flip)], [tiles])
-def minimize_tiles(tiles):
+def minimize_tiles(tiles, is_full_image):
     map = []
     map_tiles = []
 
-    for tile in tiles:
-        vertical_flip_tile = flip_vertical(tile)
-        horizontal_flip_tile = flip_horizontal(tile)
-        vertical_horizontal_flip_tile = flip_horizontal(vertical_flip_tile)
-
-        if tile in map_tiles:
-            map.append((map_tiles.index(tile), FLIP_NONE))
-        elif vertical_flip_tile in map_tiles:
-            map.append((map_tiles.index(vertical_flip_tile), FLIP_VERTICAL))
-        elif horizontal_flip_tile in map_tiles:
-            map.append((map_tiles.index(horizontal_flip_tile), FLIP_HORIZONTAL))
-        elif vertical_horizontal_flip_tile in map_tiles:
-            map.append((map_tiles.index(vertical_horizontal_flip_tile), FLIP_VERTICAL_AND_HORIZONTAL))
-        else:
+    if is_full_image:
+        for tile in tiles:
             map_tiles.append(tile)
-            map.append((map_tiles.index(tile), FLIP_NONE))
+            map.append((map_tiles.index(tile), FLIP_NONE))            
+    else:
+        for tile in tiles:
+            vertical_flip_tile = flip_vertical(tile)
+            horizontal_flip_tile = flip_horizontal(tile)
+            vertical_horizontal_flip_tile = flip_horizontal(vertical_flip_tile)
+    
+            if tile in map_tiles:
+                map.append((map_tiles.index(tile), FLIP_NONE))
+            elif vertical_flip_tile in map_tiles:
+                map.append((map_tiles.index(vertical_flip_tile), FLIP_VERTICAL))
+            elif horizontal_flip_tile in map_tiles:
+                map.append((map_tiles.index(horizontal_flip_tile), FLIP_HORIZONTAL))
+            elif vertical_horizontal_flip_tile in map_tiles:
+                map.append((map_tiles.index(vertical_horizontal_flip_tile), FLIP_VERTICAL_AND_HORIZONTAL))
+            else:
+                map_tiles.append(tile)
+                map.append((map_tiles.index(tile), FLIP_NONE))
 
     print("total tile count: {}".format(len(tiles)))
-    print("minimized tile count: {}".format(len(map_tiles)))
+    
+    if not is_full_image:
+        print("minimized tile count: {}".format(len(map_tiles)))
 
     return (map, map_tiles)
 

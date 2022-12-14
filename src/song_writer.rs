@@ -108,18 +108,18 @@ pub fn write_song(output_file: &String, song: Song) {
                     0
                 };
 
-                let sample = if channel_row.sample > 0 {
-                    let sample_number = (channel_row.sample - 1) as usize;
-                    let smp = &song.samples[sample_number];
-                    sample_buffer[channel_index] = &*smp;
-                    smp
-                } else {
-                    &sample_buffer[channel_index]
-                };
-
                 // the repeat_length is either 16, 32, 64 or 128 bytes. bump octaves according to the length
                 // FIXME: this only really applies to mods, s3m will not require this
                 if note > 0 {
+                    let sample = if channel_row.sample > 0 {
+                        let sample_number = (channel_row.sample - 1) as usize;
+                        let smp = &song.samples[sample_number];
+                        sample_buffer[channel_index] = &*smp;
+                        smp
+                    } else {
+                        &sample_buffer[channel_index]
+                    };
+
                     if channel_row.sample < 23 {
                         let multiplier = REPEAT_LENGTHS.iter().position(|&x| x == sample.repeat_length).unwrap() as u8;
                         let note_offset = 0xc * multiplier;

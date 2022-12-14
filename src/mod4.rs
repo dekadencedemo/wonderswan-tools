@@ -50,7 +50,7 @@ pub fn read_mod(input_file: &String) -> Result<Song, &'static str> {
     let patterns = parse_patterns(&mod_bytes, max_pattern);
     let samples = parse_samples(&mod_bytes, max_pattern);
 
-    Ok(Song { patterns, positions, samples })
+    Ok(Song { patterns, positions, samples, channel_count: 4, mangle_notes: true })
 }
 
 fn parse_patterns(mod_bytes: &Vec<u8>, max_pattern: u8) -> Vec<Pattern> {

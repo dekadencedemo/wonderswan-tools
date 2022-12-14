@@ -90,8 +90,8 @@ pub fn write_song(output_file: &String, song: Song) {
         }
     }
 
-    // FIXME: assumes 4 channels
-    let mut sample_buffer = [&Sample::empty(), &Sample::empty(), &Sample::empty(), &Sample::empty()];
+    let empty_sample = Sample::empty();
+    let mut sample_buffer: Vec<&Sample> = (0..song.channel_count).map(|_| &empty_sample).collect();
 
     // ?? x 1024 byte patterns, 64 rows per pattern, 16 bytes per row
     for pattern_index in 0..song.patterns.len() {
@@ -108,9 +108,8 @@ pub fn write_song(output_file: &String, song: Song) {
                     0
                 };
 
-                // the repeat_length is either 16, 32, 64 or 128 bytes. bump octaves according to the length
-                // FIXME: this only really applies to mods, s3m will not require this
-                if note > 0 {
+                if song.mangle_notes && note > 0 {
+                    // the repeat_length is either 16, 32, 64 or 128 bytes. bump octaves according to the length
                     let sample = if channel_row.sample > 0 {
                         let sample_number = (channel_row.sample - 1) as usize;
                         let smp = &song.samples[sample_number];

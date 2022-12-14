@@ -33,4 +33,8 @@ pub struct Song {
     pub patterns: Vec<Pattern>,
     pub positions: Vec<u8>,
     pub samples: Vec<Sample>,
+    /// 4 for mods, can be more (maybe less?) for s3m
+    pub channel_count: u8,
+    /// use a sample's repeat length to determine the note's octave multiplier
+    pub mangle_notes: bool,
 }

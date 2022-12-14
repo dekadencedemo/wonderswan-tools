@@ -1,4 +1,4 @@
-# Dekadence WonderSwan Tools
+# Dekadence Console Tools
 
 **A Rust rewrite is in progress. The Python versions will be removed once the rewrite is complete.**
 

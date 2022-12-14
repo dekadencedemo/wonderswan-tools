@@ -4,19 +4,19 @@ use std::str;
 const PATTERNS_START: u16 = 1084;
 const PATTERN_LENGTH: u16 = 1024;
 
-pub fn read_mod(mod_bytes: &Vec<u8>) -> Result<Song, &'static str> {
+pub fn is_mod_file(mod_bytes: &Vec<u8>) -> bool {
     let mk_header_start = 1080;
     let mk_header_length = 4;
     let mk_header_bytes = &mod_bytes[mk_header_start..(mk_header_start + mk_header_length)];
     let mk_header = match String::from_utf8(mk_header_bytes.to_vec()) {
         Ok(v) => v,
-        Err(_e) => return Err("Could not read header"),
+        Err(_e) => return false,
     };
 
-    if mk_header != "M.K." {
-        return Err("Not a valid mod file");
-    }
+    mk_header == "M.K."
+}
 
+pub fn read_mod(mod_bytes: &Vec<u8>) -> Result<Song, &'static str> {
     let title_start = 0;
     let title_length = 20;
     let mod_title_bytes = &mod_bytes[title_start..(title_start + title_length)];

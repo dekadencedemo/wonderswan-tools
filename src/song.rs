@@ -38,3 +38,7 @@ pub struct Song {
     /// use a sample's repeat length to determine the note's octave multiplier
     pub mangle_notes: bool,
 }
+
+pub enum SongFormat {
+    Mod, S3m
+}

@@ -2,7 +2,12 @@
 
 **A Rust rewrite is in progress. The Python versions will be removed once the rewrite is complete.**
 
-Various tools and code for WonderSwan related things.
+Various tools and code for WonderSwan related things. The tools have been used in the following demos:
+
+- "Ihmesorsa" by Dekadence (WonderSwan) ([YouTube](https://youtu.be/qGR-qJp_PQI), [Pouet](https://www.pouet.net/prod.php?which=91299))
+- "Rakointro" by Dekadence (WonderSwan) ([YouTube](https://youtu.be/05Z6NCcLBAc), [Pouet](https://www.pouet.net/prod.php?which=91546))
+- "Vesilintu" by Dekadence (WonderSwan Color) ([YouTube](https://youtu.be/6qItOEf43xQ), [Pouet](https://www.pouet.net/prod.php?which=91900))
+- "Bar Frog Tux" by Dekadence (PC Engine) ([YouTube](https://www.youtube.com/watch?v=OrriYNyjBrk), [Pouet](https://www.pouet.net/prod.php?which=92735))
 
 ## Requirements
 

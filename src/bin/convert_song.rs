@@ -1,4 +1,5 @@
 use std::env;
+use std::fs;
 use std::process::exit;
 use wonderswan_tools::{mod4, song_writer};
 
@@ -13,7 +14,15 @@ fn main() {
     let input_file = args[1].clone();
     let output_file = args[2].clone();
 
-    let song = match mod4::read_mod(&input_file) {
+    let input_bytes = match fs::read(input_file) {
+        Ok(v) => v,
+        Err(_e) => {
+            println!("Could not read input file");
+            exit(1)
+        },
+    };
+
+    let song = match mod4::read_mod(&input_bytes) {
         Ok(v) => v,
         Err(e) => {
             println!("{}", e.to_string());

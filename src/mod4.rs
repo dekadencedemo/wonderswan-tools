@@ -1,16 +1,10 @@
 use crate::song::{ChannelRow, Pattern, PatternRow, Sample, Song};
-use std::fs;
 use std::str;
 
 const PATTERNS_START: u16 = 1084;
 const PATTERN_LENGTH: u16 = 1024;
 
-pub fn read_mod(input_file: &String) -> Result<Song, &'static str> {
-    let mod_bytes = match fs::read(input_file) {
-        Ok(v) => v,
-        Err(_e) => return Err("Could not read input file"),
-    };
-
+pub fn read_mod(mod_bytes: &Vec<u8>) -> Result<Song, &'static str> {
     let mk_header_start = 1080;
     let mk_header_length = 4;
     let mk_header_bytes = &mod_bytes[mk_header_start..(mk_header_start + mk_header_length)];

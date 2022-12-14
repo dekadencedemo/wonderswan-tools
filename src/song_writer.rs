@@ -49,28 +49,28 @@ pub fn write_song(output_file: &String, song: Song) {
             for byte_index in 0..16 {
                 let lo_sample = sample_data[repeat_start + byte_index] as u16 + 0x80;
                 let hi_sample = lo_sample;
-                output.push(((hi_sample & 0xf0) as u8) | ((lo_sample >> 4) & 0x0f) as u8);
+                output.push(((hi_sample & 0xf0) | ((lo_sample >> 4) & 0x0f)) as u8);
             }
         } else if sample.repeat_length == 32 {
             for byte_index in 0..16 {
                 // convert to signed and store highest 4 bits
                 let hi_sample = sample_data[repeat_start + byte_index * 2 + 1] as u16 + 0x80;
                 let lo_sample = sample_data[repeat_start + byte_index * 2] as u16 + 0x80;
-                output.push(((hi_sample & 0xf0) as u8) | ((lo_sample >> 4) & 0x0f) as u8);
+                output.push(((hi_sample & 0xf0) | ((lo_sample >> 4) & 0x0f)) as u8);
             }
         } else if sample.repeat_length == 64 {
             for byte_index in 0..16 {
                 // convert to signed and store highest 4 bits
                 let hi_sample = sample_data[repeat_start + byte_index * 4 + 2] as u16 + 0x80;
                 let lo_sample = sample_data[repeat_start + byte_index * 4] as u16 + 0x80;
-                output.push(((hi_sample & 0xf0) as u8) | ((lo_sample >> 4) & 0x0f) as u8);
+                output.push(((hi_sample & 0xf0) | ((lo_sample >> 4) & 0x0f)) as u8);
             }
         } else if sample.repeat_length == 128 {
             for byte_index in 0..16 {
                 // convert to signed and store highest 4 bits
                 let hi_sample = sample_data[repeat_start + byte_index * 8 + 4] as u16 + 0x80;
                 let lo_sample = sample_data[repeat_start + byte_index * 8] as u16 + 0x80;
-                output.push(((hi_sample & 0xf0) as u8) | ((lo_sample >> 4) & 0x0f) as u8);
+                output.push(((hi_sample & 0xf0)| ((lo_sample >> 4) & 0x0f)) as u8);
             }
         } else {
             for _ in 0..16 {

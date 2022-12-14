@@ -1,5 +1,7 @@
 # Dekadence WonderSwan Tools
 
+**A Rust rewrite is in progress. The Python versions will be removed once the rewrite is complete.**
+
 Various tools and code for WonderSwan related things.
 
 ## Requirements

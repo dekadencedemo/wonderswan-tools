@@ -1,9 +1,9 @@
 use std::env;
 use std::fs;
 use std::process::exit;
-use wonderswan_tools::{mod4, song_writer};
 use wonderswan_tools::mod4::is_mod_file;
 use wonderswan_tools::song::SongFormat;
+use wonderswan_tools::{mod4, song_writer};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -29,15 +29,15 @@ fn main() {
             SongFormat::Mod => match mod4::read_mod(&input_bytes) {
                 Ok(song) => song,
                 Err(e) => {
-                    println!("{}", e.to_string());
+                    println!("{}", e);
                     exit(1)
                 }
-            }
+            },
             SongFormat::S3m => {
                 println!("s3m not yet supported");
                 exit(1)
             }
-        }
+        },
         None => {
             println!("Unsupported format");
             exit(1)
@@ -47,8 +47,8 @@ fn main() {
     song_writer::write_song(&output_file, song);
 }
 
-fn determine_format(input_bytes: &Vec<u8>) -> Option<SongFormat> {
-    if is_mod_file(&input_bytes) {
+fn determine_format(input_bytes: &[u8]) -> Option<SongFormat> {
+    if is_mod_file(input_bytes) {
         Some(SongFormat::Mod)
     } else {
         None

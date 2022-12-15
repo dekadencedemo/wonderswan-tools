@@ -10,7 +10,15 @@ pub struct Sample {
 
 impl Sample {
     pub const fn empty() -> Self {
-        Sample { name: String::new(), length: 0, finetune: 0, volume: 0, repeat_start: 0, repeat_length: 0, sample_data: Vec::new() }
+        Sample {
+            name: String::new(),
+            length: 0,
+            finetune: 0,
+            volume: 0,
+            repeat_start: 0,
+            repeat_length: 0,
+            sample_data: Vec::new(),
+        }
     }
 }
 
@@ -40,5 +48,6 @@ pub struct Song {
 }
 
 pub enum SongFormat {
-    Mod, S3m
+    Mod,
+    S3m,
 }

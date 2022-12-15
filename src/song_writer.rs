@@ -1,6 +1,6 @@
-use std::fs;
-use std::collections::HashMap;
 use crate::song::{Sample, Song};
+use std::collections::HashMap;
+use std::fs;
 
 lazy_static::lazy_static! {
     static ref PERIOD_MAP: HashMap<u16, u8> = [
@@ -21,24 +21,21 @@ pub fn write_song(output_file: &String, song: Song) {
     let mut output: Vec<u8> = Vec::new();
 
     // 32 byte header, actual content TBD
-    for _ in 0..32 {
-        output.push(0);
-    }
+    output.resize(32, 0);
 
     // 31 x 32 byte instruments
     for sample_index in 0..31 {
         let sample = &song.samples[sample_index];
 
-        if sample.length > 0 && !REPEAT_LENGTHS.contains(&sample.repeat_length) && sample_index < 23 {
+        if sample.length > 0 && !REPEAT_LENGTHS.contains(&sample.repeat_length) && sample_index < 23
+        {
             println!("error in sample {}: invalid repeat length", sample_index);
         }
 
         output.push(sample.volume);
 
         // insert blank data for now
-        for _ in 0..15 {
-            output.push(0);
-        }
+        output.resize(output.len() + 15, 0);
 
         let sample_data = &sample.sample_data;
         let repeat_start = sample.repeat_start as usize;
@@ -70,12 +67,10 @@ pub fn write_song(output_file: &String, song: Song) {
                 // convert to signed and store highest 4 bits
                 let hi_sample = sample_data[repeat_start + byte_index * 8 + 4] as u16 + 0x80;
                 let lo_sample = sample_data[repeat_start + byte_index * 8] as u16 + 0x80;
-                output.push(((hi_sample & 0xf0)| ((lo_sample >> 4) & 0x0f)) as u8);
+                output.push(((hi_sample & 0xf0) | ((lo_sample >> 4) & 0x0f)) as u8);
             }
         } else {
-            for _ in 0..16 {
-                output.push(0);
-            }
+            output.resize(output.len() + 16, 0);
         }
     }
 
@@ -94,14 +89,14 @@ pub fn write_song(output_file: &String, song: Song) {
     let mut sample_buffer: Vec<&Sample> = (0..song.channel_count).map(|_| &empty_sample).collect();
 
     // ?? x 1024 byte patterns, 64 rows per pattern, 16 bytes per row
-    for pattern_index in 0..song.patterns.len() {
-        let pattern = &song.patterns[pattern_index];
-
-        for row_index in 0..pattern.rows.len() {
-            let row = &pattern.rows[row_index];
-
-            for channel_index in 0..row.channel_rows.len() {
-                let channel_row = &row.channel_rows[channel_index];
+    for pattern in song.patterns {
+        for row in pattern.rows {
+            for (channel_index, channel_row) in row
+                .channel_rows
+                .iter()
+                .enumerate()
+                .take(row.channel_rows.len())
+            {
                 let mut note = if PERIOD_MAP.contains_key(&channel_row.period) {
                     PERIOD_MAP[&channel_row.period]
                 } else {
@@ -113,14 +108,17 @@ pub fn write_song(output_file: &String, song: Song) {
                     let sample = if channel_row.sample > 0 {
                         let sample_number = (channel_row.sample - 1) as usize;
                         let smp = &song.samples[sample_number];
-                        sample_buffer[channel_index] = &*smp;
+                        sample_buffer[channel_index] = smp;
                         smp
                     } else {
-                        &sample_buffer[channel_index]
+                        sample_buffer[channel_index]
                     };
 
                     if channel_row.sample < 23 {
-                        let multiplier = REPEAT_LENGTHS.iter().position(|&x| x == sample.repeat_length).unwrap() as u8;
+                        let multiplier = REPEAT_LENGTHS
+                            .iter()
+                            .position(|&x| x == sample.repeat_length)
+                            .unwrap() as u8;
                         let note_offset = 0xc * multiplier;
                         note += note_offset;
                     }
